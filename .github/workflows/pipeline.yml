@@ -29,7 +29,13 @@ jobs:
           command: npm run test:e2e
           start: npm run start-prod
           wait-on: http://localhost:5000
-
+      - name: Checks Failure
+        uses: rjstone/discord-webhook-notify@v1
+        if: failure()
+        with:
+            severity: error
+            details:  Lint, Testing, and Build Failed
+            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
   deploy:
     needs: [simple_deployment_pipeline]
     if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ''), '#skip') }}
@@ -41,6 +47,20 @@ jobs:
       - run: flyctl deploy --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      - name: Checks and Deploy Success
+        uses: rjstone/discord-webhook-notify@v1
+        if: success()
+        with:
+            severity: info
+            details:  Lint, Testing, Build and Deployment Successful
+            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+      - name: Checks Failure
+        uses: rjstone/discord-webhook-notify@v1
+        if: failure()
+        with:
+            severity: error
+            details:  Deploy failed
+            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
   tag_release:
     if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ''), '#skip') }}
@@ -56,35 +76,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
-
-  notify_discord_success:
-    if: ${{ github.event_name == 'push' }}
-    name: Notify Discord Success
-    needs: [deploy]
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checks and Deploy Success
-        uses: rjstone/discord-webhook-notify@v1
-        if: success()
-        with:
-            severity: info
-            details:  Lint, Testing, Build and Deployment Successful
-            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
-      - name: Checks ande Deploy Failure
-        uses: rjstone/discord-webhook-notify@v1
-        if: failure()
-        with:
-            severity: error
-            details:  Lint, Testing, Build and Deployment Failed
-            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
-  notify_discord_failure:
-    name: Notify Discord Failure
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checks Failure
-        uses: rjstone/discord-webhook-notify@v1
-        if: failure()
-        with:
-            severity: error
-            details:  Lint, Testing, and Build Failed
-            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
