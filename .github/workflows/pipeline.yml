@@ -79,7 +79,6 @@ jobs:
             webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
   notify_discord_failure:
     name: Notify Discord Failure
-    needs: [simple_deployment_pipeline]
     runs-on: ubuntu-20.04
     steps:
       - name: Checks Failure
