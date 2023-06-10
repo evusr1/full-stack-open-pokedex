@@ -31,6 +31,7 @@ jobs:
           wait-on: http://localhost:5000
 
   deploy:
+    needs: [simple_deployment_pipeline]
     if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ''), '#skip') }}
     name: Deploy app
     runs-on: ubuntu-latest
@@ -59,7 +60,7 @@ jobs:
   notify_discord_success:
     if: ${{ github.event_name == 'push' }}
     name: Notify Discord Success
-    needs: [simple_deployment_pipeline]
+    needs: [deploy]
     runs-on: ubuntu-20.04
     steps:
       - name: Checks and Deploy Success
