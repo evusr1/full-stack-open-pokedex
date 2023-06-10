@@ -56,9 +56,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
 
-  notify_discord:
+  notify_discord_success:
     if: ${{ github.event_name == 'push' }}
-    name: Notify Discord
+    name: Notify Discord Success
     needs: [simple_deployment_pipeline]
     runs-on: ubuntu-20.04
     steps:
@@ -75,4 +75,16 @@ jobs:
         with:
             severity: error
             details:  Lint, Testing, Build and Deployment Failed
+            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+  notify_discord_failure:
+    name: Notify Discord Failure
+    needs: [simple_deployment_pipeline]
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checks Failure
+        uses: rjstone/discord-webhook-notify@v1
+        if: failure()
+        with:
+            severity: error
+            details:  Lint, Testing, and Build Failed
             webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
