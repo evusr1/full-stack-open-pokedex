@@ -62,17 +62,17 @@ jobs:
     needs: [simple_deployment_pipeline]
     runs-on: ubuntu-20.04
     steps:
-      - name: Test Success
+      - name: Checks and Deploy Success
         uses: rjstone/discord-webhook-notify@v1
         if: success()
         with:
             severity: info
-            details: Test Succeeded!
+            details:  Lint, Testing, Build and Deployment Successful
             webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
-      - name: Test Failure
+      - name: Checks ande Deploy Failure
         uses: rjstone/discord-webhook-notify@v1
         if: failure()
         with:
             severity: error
-            details: Test Failed!
+            details:  Lint, Testing, Build and Deployment Failed
             webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
