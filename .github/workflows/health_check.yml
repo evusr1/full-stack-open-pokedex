@@ -19,12 +19,14 @@ jobs:
             retry-delay: 5s 
         - name: Health check ok
           uses: rjstone/discord-webhook-notify@v1
+          if: success()
           with:
             severity: info
             details: Health check ok.
             webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
         - name: Health check error
           uses: rjstone/discord-webhook-notify@v1
+          if: failure()
           with:
             severity: error
             details: Health check failed.
